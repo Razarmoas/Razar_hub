@@ -1577,7 +1577,62 @@ if game.PlaceId == 6961824067 then
 			canKeyTp = Value
 		end,
 	})
+	
+	local p = game.Players.LocalPlayer
 
+	local map = {
+		["Barn"] = "Barn",
+		["Blue House"] = "BlueHouse",
+		["Factory"] = "Factory",
+		["Glass House"] = "GlassHouse",
+		["Japanese House"] = "JapaneseHouse",
+		["Pink House"] = "PinkRoofHouse",
+		["Spooky House"] = "SpookyHouse",
+		["Train"] = "Train",
+		["Green House"] = "TudorHouse",
+	}
+
+	local dd = TeleportTab:CreateDropdown({
+		Name = "Waypoints",
+		Options = {"Barn","Blue House","Factory","Glass House","Japanese House","Pink House","Spooky House","Train","Green House"},
+		CurrentOption = {"Barn"},
+		MultipleOptions = false,
+		Flag = "waypoints",
+		Callback = function(opt)
+			if #opt == 0 then return end
+			local label = opt[1]
+			local wpname = map[label] or label
+			local folder = workspace:FindFirstChild("Waypoints")
+			if not folder then return end
+			local wp = folder:FindFirstChild(wpname)
+			if not wp then
+				for _,v in ipairs(folder:GetChildren()) do
+					if v.Name:lower():gsub("%s","") == wpname:lower():gsub("%s","") then
+						wp = v
+						break
+					end
+				end
+				if not wp then return end
+			end
+			local ch = p.Character or p.CharacterAdded:Wait()
+			local hrp = ch:FindFirstChild("HumanoidRootPart")
+			if not hrp then return end
+			local dest
+			if wp:IsA("BasePart") then
+				dest = wp
+			elseif wp.PrimaryPart then
+				dest = wp.PrimaryPart
+			else
+				for _,c in ipairs(wp:GetDescendants()) do
+					if c:IsA("BasePart") then dest = c; break end
+				end
+			end
+			if dest then
+				hrp.CFrame = dest.CFrame + Vector3.new(0, 3, 0)
+			end
+		end,
+	})
+	
 	TeleportTab:CreateSection("Other")
 
 	local RunService = game:GetService("RunService")
