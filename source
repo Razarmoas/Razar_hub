@@ -781,13 +781,11 @@ if game.PlaceId == 6961824067 then
 		local map = {}
 		local existingSelectionStillValid = false
 		for _, plr in ipairs(game.Players:GetPlayers()) do
-			if plr.Name ~= player.Name then
-				local label = plr.DisplayName.." ("..plr.Name..")"
-				table.insert(opts, label)
-				map[label] = plr.Name
-				if selected == plr.Name then
-					existingSelectionStillValid = true
-				end
+			local label = plr.DisplayName.." ("..plr.Name..")"
+			table.insert(opts, label)
+			map[label] = plr.Name
+			if selected == plr.Name then
+				existingSelectionStillValid = true
 			end
 		end
 		if tpDropdown then
