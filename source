@@ -2062,7 +2062,7 @@ if game.PlaceId == 6961824067 then
 		local secs = age % 60
 		local t = string.format("%02d:%02d", mins, secs)
 		local c = "Players in server: "..#game.Players:GetPlayers().."\nServer Age: "..t
-		par:SetDesc(c)
+		par:Set({Title = "Game Information", Content = c})
 	end)
 
 	Settings:CreateDivider()
