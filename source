@@ -2057,11 +2057,7 @@ if game.PlaceId == 6961824067 then
 	local par = Settings:CreateParagraph({Title = "Game Information", Content = ""})
 
 	rs.RenderStepped:Connect(function()
-		local age = os.time() - start
-		local mins = math.floor(age/60)
-		local secs = age % 60
-		local t = string.format("%02d:%02d", mins, secs)
-		local c = "Players in server: "..#game.Players:GetPlayers().."\nServer Age: "..t
+		local c = "Players in server: "..#game.Players:GetPlayers()
 		par:Set({Title = "Game Information", Content = c})
 	end)
 
@@ -2070,7 +2066,12 @@ if game.PlaceId == 6961824067 then
 	Settings:CreateButton({
 		Name = "Rejoin",
 		Callback = function()
-			ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+			local ok = pcall(function()
+				game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+			end)
+			if not ok then
+				game:GetService("TeleportService"):Teleport(game.PlaceId, player)
+			end
 		end,
 	})
 
