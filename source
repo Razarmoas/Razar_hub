@@ -2061,7 +2061,7 @@ if game.PlaceId == 6961824067 then
 	SlotMachines:CreateSection("Visuals")
 	
 	local coinAmount = nil
-	
+
 	SlotMachines:CreateInput({
 		Name = "Coin Amount",
 		CurrentValue = "",
@@ -2072,8 +2072,8 @@ if game.PlaceId == 6961824067 then
 			coinAmount = tonumber(Text)
 		end,
 	})
-	
-	local oldCoins
+
+	local oldCoins = nil
 
 	SlotMachines:CreateToggle({
 		Name = "Set Coins (Visual only, NOT REAL!!)",
@@ -2082,11 +2082,11 @@ if game.PlaceId == 6961824067 then
 		Callback = function(Value)
 			local textLabel = player.PlayerGui.MenuGui.TopRight.CoinsFrame.CoinsDisplay.Coins
 			if Value then
-				if not oldCoins then
+				if oldCoins == nil then
 					oldCoins = textLabel.Text
 				end
 				if coinAmount then
-					textLabel.Text = coinAmount
+					textLabel.Text = tostring(coinAmount)
 				end
 			else
 				if oldCoins then
@@ -2170,5 +2170,10 @@ if game.PlaceId == 6961824067 then
 		end,
 	})
 	
-	
+	Settings:CreateButton({
+		Name = "Calculator",
+		Callback = function()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/Razarmoas/Calculator/refs/heads/main/source"))()
+		end,
+	})
 end
