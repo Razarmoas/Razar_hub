@@ -2012,37 +2012,36 @@ if game.PlaceId == 6961824067 then
 	
 	local Settings = Window:CreateTab("Settings", nil)
 	Settings:CreateSection("Mouse Unlock")
-	
+
 	local canUnlockMouse = false
 	local IsUnlocked = false
-	
+
+	local screenUi = Instance.new("ScreenGui")
+	screenUi.Name = "MouseLock"
+	screenUi.ResetOnSpawn = false
+	screenUi.Parent = player.PlayerGui
+
+	local buttonLock = Instance.new("TextButton")
+	buttonLock.BackgroundTransparency = 1
+	buttonLock.TextTransparency = 1
+	buttonLock.AutoButtonColor = false
+	buttonLock.Size = UDim2.new(0,0,0,0)
+	buttonLock.Parent = screenUi
+	buttonLock.Modal = false
+
 	Settings:CreateKeybind({
 		Name = "Mouse Unlock",
 		CurrentKeybind = "L",
 		HoldToInteract = false,
 		Flag = "mouseunlock",
-		Callback = function(Keybind)
+		Callback = function()
 			if canUnlockMouse then
 				IsUnlocked = not IsUnlocked
-				local screenUi = Instance.new("ScreenGui", player.PlayerGui)
-				screenUi.Name = "MouseLock"
-
-				local buttonLock = Instance.new("TextButton", screenUi)
-				buttonLock.BackgroundTransparency = 1
-				buttonLock.TextTransparency = 1
-				buttonLock.AutoButtonColor = false
-				
-				if IsUnlocked then
-					buttonLock.Modal = true
-				else
-					buttonLock.Modal = false
-				end
-				
-				
+				buttonLock.Modal = IsUnlocked
 			end
 		end,
 	})
-	
+
 	Settings:CreateToggle({
 		Name = "Unlock Mouse",
 		CurrentValue = false,
@@ -2051,7 +2050,7 @@ if game.PlaceId == 6961824067 then
 			canUnlockMouse = Value
 		end,
 	})
-	
+
 	Settings:CreateSection("Game")
 
 	local start = os.time()
@@ -2062,10 +2061,10 @@ if game.PlaceId == 6961824067 then
 		local mins = math.floor(age/60)
 		local secs = age % 60
 		local t = string.format("%02d:%02d", mins, secs)
-		local c = "Players in server: "..#p:GetPlayers().."\nServer Age: "..t
+		local c = "Players in server: "..#game.Players:GetPlayers().."\nServer Age: "..t
 		par:SetDesc(c)
 	end)
-	
+
 	Settings:CreateDivider()
 
 	Settings:CreateButton({
@@ -2074,11 +2073,11 @@ if game.PlaceId == 6961824067 then
 			ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
 		end,
 	})
-	
+
 	Settings:CreateButton({
 		Name = "Infinite Yield",
 		Callback = function()
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
 	})
 end
