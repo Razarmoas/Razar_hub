@@ -2073,14 +2073,26 @@ if game.PlaceId == 6961824067 then
 		end,
 	})
 	
+	local oldCoins
+
 	SlotMachines:CreateToggle({
 		Name = "Set Coins (Visual only, NOT REAL!!)",
 		CurrentValue = false,
 		Flag = "setCoins",
 		Callback = function(Value)
-			if coinAmount then
-				local textLabel = player.PlayerGui.MenuGui.TopRight.CoinsFrame.CoinsDisplay.Coins
-				textLabel.Text = coinAmount
+			local textLabel = player.PlayerGui.MenuGui.TopRight.CoinsFrame.CoinsDisplay.Coins
+			if Value then
+				if not oldCoins then
+					oldCoins = textLabel.Text
+				end
+				if coinAmount then
+					textLabel.Text = coinAmount
+				end
+			else
+				if oldCoins then
+					textLabel.Text = oldCoins
+					oldCoins = nil
+				end
 			end
 		end,
 	})
@@ -2157,4 +2169,6 @@ if game.PlaceId == 6961824067 then
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
 	})
+	
+	
 end
