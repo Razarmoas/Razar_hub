@@ -2010,6 +2010,81 @@ if game.PlaceId == 6961824067 then
 		removePlayerHighlight(plr)
 	end)
 	
+	local SlotMachines = Window:CreateTab("Slot Machines", nil)
+	SlotMachines:CreateSection("Auto Farm")
+	
+	local SlotTime = SlotMachines:CreateLabel("Slot Machine time remaining: ...", nil, nil, false)
+
+	task.spawn(function()
+		while true do
+			for _, m in ipairs(workspace.Slots:GetChildren()) do
+				if m:FindFirstChild("Screen") and m.Screen:FindFirstChild("SlotGui") then
+					local g = m.Screen.SlotGui
+					local f = g:FindFirstChild("TimeLeftFrame")
+					if f and f:FindFirstChild("TimeText") then
+						local txt = f.TimeText.Text
+						if txt == "0:00" then
+							SlotTime:Set("Slot Machine time remaining: READY", nil, nil, false)
+						else
+							SlotTime:Set("Slot Machine time remaining: "..txt, nil, nil, false)
+						end
+					end
+				end
+			end
+			task.wait(1)
+		end
+	end)
+	
+	local vu = game:GetService("VirtualUser")
+
+	local con
+
+	local Toggle = SlotMachines:CreateToggle({
+		Name = "Anti AFK",
+		CurrentValue = false,
+		Flag = "AntiAFK",
+		Callback = function(v)
+			if v then
+				con = player.Idled:Connect(function()
+					vu:CaptureController()
+					vu:ClickButton2(Vector2.new())
+				end)
+			else
+				if con then
+					con:Disconnect()
+					con = nil
+				end
+			end
+		end,
+	})
+	
+	SlotMachines:CreateSection("Visuals")
+	
+	local coinAmount = nil
+	
+	SlotMachines:CreateInput({
+		Name = "Coin Amount",
+		CurrentValue = "",
+		PlaceholderText = "Number",
+		RemoveTextAfterFocusLost = false,
+		Flag = "coinAmount",
+		Callback = function(Text)
+			coinAmount = tonumber(Text)
+		end,
+	})
+	
+	SlotMachines:CreateToggle({
+		Name = "Set Coins (Visual only, NOT REAL!!)",
+		CurrentValue = false,
+		Flag = "setCoins",
+		Callback = function(Value)
+			if coinAmount then
+				local textLabel = player.PlayerGui.MenuGui.TopRight.CoinsFrame.CoinsDisplay.Coins
+				textLabel.Text = coinAmount
+			end
+		end,
+	})
+	
 	local Settings = Window:CreateTab("Settings", nil)
 	Settings:CreateSection("Mouse Unlock")
 
@@ -2052,12 +2127,13 @@ if game.PlaceId == 6961824067 then
 	})
 
 	Settings:CreateSection("Game")
-
-	local start = os.time()
+	
 	local par = Settings:CreateParagraph({Title = "Game Information", Content = ""})
 
 	rs.RenderStepped:Connect(function()
 		local c = "Players in server: "..#game.Players:GetPlayers()
+			.."\nPlace ID: "..game.PlaceId
+			.."\nPlace Name: "..game.Name
 		par:Set({Title = "Game Information", Content = c})
 	end)
 
@@ -2080,12 +2156,5 @@ if game.PlaceId == 6961824067 then
 		Callback = function()
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
-	})
-	
-	Rayfield:Notify({
-		Title = "BRO I GIVE UP",
-		Content = "I HOPE THIS WORKS NOW BRO OR ILL THROW MY STUFF OUT THE WINDOW",
-		Duration = 6.5,
-		Image = "rewind",
 	})
 end
