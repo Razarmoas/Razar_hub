@@ -2080,4 +2080,11 @@ if game.PlaceId == 6961824067 then
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
 	})
+	
+	Rayfield:Notify({
+		Title = "BRO I GIVE UP",
+		Content = "I HOPE THIS WORKS NOW BRO OR ILL THROW MY STUFF OUT THE WINDOW",
+		Duration = 6.5,
+		Image = "rewind",
+	})
 end
