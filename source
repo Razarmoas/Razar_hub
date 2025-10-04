@@ -5,6 +5,7 @@ local player = game.Players.LocalPlayer
 
 local GrabEvents = game.ReplicatedStorage:WaitForChild("GrabEvents")
 local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+local ts = game:GetService("TeleportService")
 
 local Window = Rayfield:CreateWindow({
 	Name = "Razar Hub",
@@ -2008,4 +2009,76 @@ if game.PlaceId == 6961824067 then
 	game.Players.PlayerRemoving:Connect(function(plr)
 		removePlayerHighlight(plr)
 	end)
+	
+	local Settings = Window:CreateTab("Settings", nil)
+	Settings:CreateSection("Mouse Unlock")
+	
+	local canUnlockMouse = false
+	local IsUnlocked = false
+	
+	Settings:CreateKeybind({
+		Name = "Mouse Unlock",
+		CurrentKeybind = "L",
+		HoldToInteract = false,
+		Flag = "mouseunlock",
+		Callback = function(Keybind)
+			if canUnlockMouse then
+				IsUnlocked = not IsUnlocked
+				local screenUi = Instance.new("ScreenGui", player.PlayerGui)
+				screenUi.Name = "MouseLock"
+
+				local buttonLock = Instance.new("TextButton", screenUi)
+				buttonLock.BackgroundTransparency = 1
+				buttonLock.TextTransparency = 1
+				buttonLock.AutoButtonColor = false
+				
+				if IsUnlocked then
+					buttonLock.Modal = true
+				else
+					buttonLock.Modal = false
+				end
+				
+				
+			end
+		end,
+	})
+	
+	Settings:CreateToggle({
+		Name = "Unlock Mouse",
+		CurrentValue = false,
+		Flag = "unlockMouse",
+		Callback = function(Value)
+			canUnlockMouse = Value
+		end,
+	})
+	
+	Settings:CreateSection("Game")
+
+	local start = os.time()
+	local par = Settings:CreateParagraph({Title = "Game Information", Content = ""})
+
+	rs.RenderStepped:Connect(function()
+		local age = os.time() - start
+		local mins = math.floor(age/60)
+		local secs = age % 60
+		local t = string.format("%02d:%02d", mins, secs)
+		local c = "Players in server: "..#p:GetPlayers().."\nServer Age: "..t
+		par:SetDesc(c)
+	end)
+	
+	Settings:CreateDivider()
+
+	Settings:CreateButton({
+		Name = "Rejoin",
+		Callback = function()
+			ts:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+		end,
+	})
+	
+	Settings:CreateButton({
+		Name = "Infinite Yield",
+		Callback = function()
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+		end,
+	})
 end
