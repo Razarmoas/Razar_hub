@@ -770,7 +770,7 @@ if game.PlaceId == 6961824067 then
 			end
 		end
 	end)
-	
+
 	FTAPTab:CreateDivider()
 	FTAPTab:CreateParagraph({Title = "HOW TO USE", Content = "First you have to enable Evil Missile and then just spawn a normal Rocket and start it! PLEASE NOTE that this wont work if you dont own the toy or spawn it by yourself"})
 
@@ -857,7 +857,7 @@ if game.PlaceId == 6961824067 then
 			})
 		end,
 	})
-	
+
 	FTAPTab:CreateSlider({
 		Name = "Missle Speed",
 		Range = {0, 1000},
@@ -916,11 +916,11 @@ if game.PlaceId == 6961824067 then
 			end)
 		end
 	end
-	
+
 	local function createBombGui(bomb, targetName)
 		if not bomb or not bomb:FindFirstChild("Body") then return end
 		local body = bomb.Body
-		
+
 		local hl = Instance.new("Highlight")
 		hl.Name = "Highlight"
 		hl.Adornee = bomb
@@ -981,7 +981,7 @@ if game.PlaceId == 6961824067 then
 			AscendHeight = val
 		end,
 	})
-	
+
 	local BombGuiEnabled = false
 
 	FTAPTab:CreateToggle({
@@ -1028,7 +1028,7 @@ if game.PlaceId == 6961824067 then
 					local bomb = info.Bomb
 					local body = bomb:FindFirstChild("Body")
 					if not body then continue end
-					
+
 					if BombGuiEnabled then
 						local targetName = MouseTargetEnabled and "Mouse" or (selected or "Unknown")
 						createBombGui(bomb, targetName)
@@ -1040,7 +1040,7 @@ if game.PlaceId == 6961824067 then
 							bomb.Highlight:Destroy()
 						end
 					end
-					
+
 					local ao = body:FindFirstChild("AlignOrientation")
 					if not ao then
 						local a = Instance.new("Attachment", body)
@@ -1578,7 +1578,7 @@ if game.PlaceId == 6961824067 then
 			canKeyTp = Value
 		end,
 	})
-	
+
 	local p = game.Players.LocalPlayer
 
 	local map = {
@@ -1633,7 +1633,7 @@ if game.PlaceId == 6961824067 then
 			end
 		end,
 	})
-	
+
 	TeleportTab:CreateSection("Other")
 
 	local RunService = game:GetService("RunService")
@@ -1919,9 +1919,9 @@ if game.PlaceId == 6961824067 then
 			end
 		end
 	})
-	
+
 	LocalPlayer:CreateDivider()
-	
+
 	local HighlightEnabled = false
 	local highlights = {}
 
@@ -2009,10 +2009,10 @@ if game.PlaceId == 6961824067 then
 	game.Players.PlayerRemoving:Connect(function(plr)
 		removePlayerHighlight(plr)
 	end)
-	
+
 	local SlotMachines = Window:CreateTab("Slot Machines", nil)
 	SlotMachines:CreateSection("Auto Farm")
-	
+
 	local SlotTime = SlotMachines:CreateLabel("Slot Machine time remaining: ...", nil, nil, false)
 
 	task.spawn(function()
@@ -2034,7 +2034,7 @@ if game.PlaceId == 6961824067 then
 			task.wait(1)
 		end
 	end)
-	
+
 	local vu = game:GetService("VirtualUser")
 
 	local con
@@ -2057,9 +2057,9 @@ if game.PlaceId == 6961824067 then
 			end
 		end,
 	})
-	
+
 	SlotMachines:CreateSection("Visuals")
-	
+
 	local coinAmount = nil
 
 	SlotMachines:CreateInput({
@@ -2096,7 +2096,7 @@ if game.PlaceId == 6961824067 then
 			end
 		end,
 	})
-	
+
 	local Settings = Window:CreateTab("Settings", nil)
 	Settings:CreateSection("Mouse Unlock")
 
@@ -2106,7 +2106,7 @@ if game.PlaceId == 6961824067 then
 	local screenUi = Instance.new("ScreenGui")
 	screenUi.Name = "MouseLock"
 	screenUi.ResetOnSpawn = false
-	screenUi.Parent = player.PlayerGui
+	screenUi.Parent = player:WaitForChild("PlayerGui")
 
 	local buttonLock = Instance.new("TextButton")
 	buttonLock.BackgroundTransparency = 1
@@ -2115,6 +2115,8 @@ if game.PlaceId == 6961824067 then
 	buttonLock.Size = UDim2.new(0,0,0,0)
 	buttonLock.Parent = screenUi
 	buttonLock.Modal = false
+
+	local uis = game:GetService("UserInputService")
 
 	Settings:CreateKeybind({
 		Name = "Mouse Unlock",
@@ -2125,6 +2127,7 @@ if game.PlaceId == 6961824067 then
 			if canUnlockMouse then
 				IsUnlocked = not IsUnlocked
 				buttonLock.Modal = IsUnlocked
+				uis.MouseIconEnabled = IsUnlocked
 			end
 		end,
 	})
@@ -2135,11 +2138,16 @@ if game.PlaceId == 6961824067 then
 		Flag = "unlockMouse",
 		Callback = function(Value)
 			canUnlockMouse = Value
+			if not Value then
+				IsUnlocked = false
+				buttonLock.Modal = false
+				uis.MouseIconEnabled = false
+			end
 		end,
 	})
 
 	Settings:CreateSection("Game")
-	
+
 	local par = Settings:CreateParagraph({Title = "Game Information", Content = ""})
 
 	rs.RenderStepped:Connect(function()
@@ -2169,7 +2177,7 @@ if game.PlaceId == 6961824067 then
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
 		end,
 	})
-	
+
 	Settings:CreateButton({
 		Name = "Calculator",
 		Callback = function()
