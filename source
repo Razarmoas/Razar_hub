@@ -39,6 +39,283 @@ local uis = game:GetService("UserInputService")
 -- ==============================
 
 --if game.PlaceId ~= 6961824067 then
+--end
+
+-- ==============================
+-- MM2 TAB
+-- ==============================
+if game.PlaceId == 142823291 then
+	local MM2Tab = Window:CreateTab("MM2", nil)
+	MM2Tab:CreateSection("MM2 Features")
+
+	local hlWeaponOn = false
+	local aimbotOn = false
+	local showDistance = false
+	local showTimer = false
+	local highlightGuns = false
+	local autoPickupGuns = false
+
+	local distanceGui = Instance.new("ScreenGui")
+	distanceGui.Name = "KillerDistanceGui"
+	distanceGui.ResetOnSpawn = false
+	distanceGui.Enabled = false
+	distanceGui.Parent = game.CoreGui
+
+	local distanceLabel = Instance.new("TextLabel")
+	distanceLabel.Size = UDim2.new(0, 300, 0, 50)
+	distanceLabel.Position = UDim2.new(0.5, -150, 0, 10)
+	distanceLabel.BackgroundTransparency = 1
+	distanceLabel.TextColor3 = Color3.fromRGB(255,255,255)
+	distanceLabel.TextScaled = true
+	distanceLabel.Font = Enum.Font.SourceSansBold
+	distanceLabel.Text = ""
+	distanceLabel.Parent = distanceGui
+
+	local timerLabel = Instance.new("TextLabel")
+	timerLabel.Size = UDim2.new(0, 200, 0, 50)
+	timerLabel.Position = UDim2.new(0.5, -100, 0, 70)
+	timerLabel.BackgroundTransparency = 1
+	timerLabel.TextColor3 = Color3.fromRGB(255,255,0)
+	timerLabel.TextScaled = true
+	timerLabel.Font = Enum.Font.SourceSansBold
+	timerLabel.Text = ""
+	timerLabel.Parent = distanceGui
+
+	local gunHighlightTable = {}
+
+	local function addGunDropHL(part)
+		if gunHighlightTable[part] then return end
+		local hl = Instance.new("Highlight")
+		hl.Name = "RazarGunDropHL"
+		hl.FillTransparency = 0.5
+		hl.FillColor = Color3.fromRGB(0, 255, 255)
+		hl.OutlineColor = Color3.fromRGB(0, 255, 255)
+		hl.Parent = part
+		gunHighlightTable[part] = hl
+	end
+
+	MM2Tab:CreateToggle({
+		Name = "Highlight Weapons",
+		CurrentValue = false,
+		Flag = "HLWeaponsUnarmed",
+		Callback = function(v)
+			hlWeaponOn = v
+			if not v then
+				for _, plr in ipairs(game.Players:GetPlayers()) do
+					if plr.Character then
+						local h = plr.Character:FindFirstChild("RazarWeaponHL")
+						if h then h:Destroy() end
+					end
+				end
+			end
+		end,
+	})
+
+	MM2Tab:CreateToggle({
+		Name = "Aimbot (Gun -> Knife)",
+		CurrentValue = false,
+		Flag = "MM2Aimbot",
+		Callback = function(v)
+			aimbotOn = v
+		end,
+	})
+
+	MM2Tab:CreateToggle({
+		Name = "Show Killer Distance",
+		CurrentValue = false,
+		Flag = "ShowKillerDistance",
+		Callback = function(v)
+			showDistance = v
+			distanceGui.Enabled = v or showTimer or highlightGuns
+		end,
+	})
+
+	MM2Tab:CreateToggle({
+		Name = "Show Round Timer",
+		CurrentValue = false,
+		Flag = "ShowRoundTimer",
+		Callback = function(v)
+			showTimer = v
+			distanceGui.Enabled = showDistance or v or highlightGuns
+		end,
+	})
+
+	MM2Tab:CreateToggle({
+		Name = "Highlight Gun Drops",
+		CurrentValue = false,
+		Flag = "HighlightGunDrops",
+		Callback = function(v)
+			highlightGuns = v
+			distanceGui.Enabled = showDistance or showTimer or v
+			if not v then
+				for _, hl in pairs(gunHighlightTable) do
+					if hl and hl.Parent then hl:Destroy() end
+				end
+				gunHighlightTable = {}
+			end
+		end
+	})
+
+	MM2Tab:CreateToggle({
+		Name = "Auto Pickup GunDrops",
+		CurrentValue = false,
+		Flag = "AutoPickupGunDrops",
+		Callback = function(v)
+			autoPickupGuns = v
+		end
+	})
+
+	local function getWeaponStatus(plr)
+		local weapons = {}
+		if plr.Character then
+			for _, v in ipairs(plr.Character:GetChildren()) do
+				if v:IsA("Tool") and (v.Name:lower():find("knife") or v.Name:lower():find("gun")) then
+					table.insert(weapons, v.Name:lower())
+				end
+			end
+		end
+		if plr:FindFirstChild("Backpack") then
+			for _, v in ipairs(plr.Backpack:GetChildren()) do
+				if v:IsA("Tool") and (v.Name:lower():find("knife") or v.Name:lower():find("gun")) then
+					table.insert(weapons, v.Name:lower())
+				end
+			end
+		end
+		if #weapons == 0 then return "Unarmed"
+		elseif weapons[1]:find("knife") then return "Knife"
+		else return "Gun"
+		end
+	end
+
+	workspace.ChildAdded:Connect(function(child)
+		if not highlightGuns then return end
+		if child:IsA("Model") and child:FindFirstChild("Spawns") then
+			child.ChildAdded:Connect(function(c)
+				if c:IsA("BasePart") and c.Name == "GunDrop" then
+					addGunDropHL(c)
+				end
+			end)
+			for _, c in ipairs(child:GetDescendants()) do
+				if c:IsA("BasePart") and c.Name == "GunDrop" then
+					addGunDropHL(c)
+				end
+			end
+		end
+	end)
+
+	workspace.DescendantAdded:Connect(function(desc)
+		if not highlightGuns then return end
+		if desc:IsA("BasePart") and desc.Name == "GunDrop" then
+			addGunDropHL(desc)
+		end
+	end)
+
+	rs.Heartbeat:Connect(function()
+		local char = p.Character
+		if not char then return end
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+
+		for _, plr in ipairs(game.Players:GetPlayers()) do
+			if hlWeaponOn and plr ~= p then
+				local c = plr.Character
+				if c and c:FindFirstChild("HumanoidRootPart") then
+					local status = getWeaponStatus(plr)
+					local hl = c:FindFirstChild("RazarWeaponHL")
+					local color = (status=="Knife" and Color3.fromRGB(255,0,0)
+						or status=="Gun" and Color3.fromRGB(0,0,255)
+						or Color3.fromRGB(98,255,0))
+					if not hl then
+						hl = Instance.new("Highlight")
+						hl.Name = "RazarWeaponHL"
+						hl.FillTransparency = 0.5
+						hl.FillColor = color
+						hl.OutlineColor = color
+						hl.Parent = c
+					else
+						hl.FillColor = color
+						hl.OutlineColor = color
+					end
+				end
+			end
+		end
+
+		if aimbotOn then
+			local gun = char:FindFirstChildOfClass("Tool")
+			if hrp and gun and gun.Name:lower():find("gun") then
+				local target
+				local shortestDist = math.huge
+				for _, plr in ipairs(game.Players:GetPlayers()) do
+					if plr ~= p then
+						local c = plr.Character
+						if c and c:FindFirstChild("HumanoidRootPart") then
+							local status = getWeaponStatus(c)
+							if status == "Knife" then
+								local dist = (c.HumanoidRootPart.Position - hrp.Position).Magnitude
+								if dist < shortestDist then
+									shortestDist = dist
+									target = c.HumanoidRootPart
+								end
+							end
+						end
+					end
+				end
+				if target then
+					workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Position)
+				end
+			end
+		end
+
+		if showDistance then
+			local nearestKiller, shortestDist = nil, math.huge
+			for _, plr in ipairs(game.Players:GetPlayers()) do
+				if plr ~= p then
+					local c = plr.Character
+					if c and c:FindFirstChild("HumanoidRootPart") then
+						local status = getWeaponStatus(c)
+						if status == "Knife" then
+							local dist = (c.HumanoidRootPart.Position - hrp.Position).Magnitude
+							if dist < shortestDist then
+								shortestDist = dist
+								nearestKiller = c
+							end
+						end
+					end
+				end
+			end
+			if nearestKiller then
+				distanceLabel.Text = string.format("Killer: %.1f studs away", shortestDist)
+			else
+				distanceLabel.Text = "No Knife Found"
+			end
+		end
+
+		if showTimer then
+			local roundPart = workspace:FindFirstChild("RoundTimerPart")
+			if roundPart and roundPart:FindFirstChild("SurfaceGui") then
+				local label = roundPart.SurfaceGui:FindFirstChild("Timer")
+				if label and label:IsA("TextLabel") then
+					timerLabel.Text = label.Text
+				else
+					timerLabel.Text = "No Timer"
+				end
+			else
+				timerLabel.Text = "No Timer"
+			end
+		end
+
+		if autoPickupGuns then
+			for part, hl in pairs(gunHighlightTable) do
+				if part and part.Parent and char:FindFirstChild("HumanoidRootPart") then
+					local originalPos = hrp.Position
+					hrp.CFrame = CFrame.new(part.Position + Vector3.new(0,3,0))
+					task.wait(0.05)
+					hrp.CFrame = CFrame.new(originalPos)
+				end
+			end
+		end
+	end)
+else
 	local HomeTab = Window:CreateTab("HOME", nil)
 	local HomeSection = HomeTab:CreateSection("Home")
 
@@ -424,284 +701,6 @@ local uis = game:GetService("UserInputService")
 			end
 		end,
 	})
-
-
---end
-
--- ==============================
--- MM2 TAB
--- ==============================
-if game.PlaceId == 142823291 then
-	local MM2Tab = Window:CreateTab("MM2", nil)
-	MM2Tab:CreateSection("MM2 Features")
-
-	local hlWeaponOn = false
-	local aimbotOn = false
-	local showDistance = false
-	local showTimer = false
-	local highlightGuns = false
-	local autoPickupGuns = false
-
-	local distanceGui = Instance.new("ScreenGui")
-	distanceGui.Name = "KillerDistanceGui"
-	distanceGui.ResetOnSpawn = false
-	distanceGui.Enabled = false
-	distanceGui.Parent = game.CoreGui
-
-	local distanceLabel = Instance.new("TextLabel")
-	distanceLabel.Size = UDim2.new(0, 300, 0, 50)
-	distanceLabel.Position = UDim2.new(0.5, -150, 0, 10)
-	distanceLabel.BackgroundTransparency = 1
-	distanceLabel.TextColor3 = Color3.fromRGB(255,255,255)
-	distanceLabel.TextScaled = true
-	distanceLabel.Font = Enum.Font.SourceSansBold
-	distanceLabel.Text = ""
-	distanceLabel.Parent = distanceGui
-
-	local timerLabel = Instance.new("TextLabel")
-	timerLabel.Size = UDim2.new(0, 200, 0, 50)
-	timerLabel.Position = UDim2.new(0.5, -100, 0, 70)
-	timerLabel.BackgroundTransparency = 1
-	timerLabel.TextColor3 = Color3.fromRGB(255,255,0)
-	timerLabel.TextScaled = true
-	timerLabel.Font = Enum.Font.SourceSansBold
-	timerLabel.Text = ""
-	timerLabel.Parent = distanceGui
-
-	local gunHighlightTable = {}
-
-	local function addGunDropHL(part)
-		if gunHighlightTable[part] then return end
-		local hl = Instance.new("Highlight")
-		hl.Name = "RazarGunDropHL"
-		hl.FillTransparency = 0.5
-		hl.FillColor = Color3.fromRGB(0, 255, 255)
-		hl.OutlineColor = Color3.fromRGB(0, 255, 255)
-		hl.Parent = part
-		gunHighlightTable[part] = hl
-	end
-
-	MM2Tab:CreateToggle({
-		Name = "Highlight Weapons",
-		CurrentValue = false,
-		Flag = "HLWeaponsUnarmed",
-		Callback = function(v)
-			hlWeaponOn = v
-			if not v then
-				for _, plr in ipairs(game.Players:GetPlayers()) do
-					if plr.Character then
-						local h = plr.Character:FindFirstChild("RazarWeaponHL")
-						if h then h:Destroy() end
-					end
-				end
-			end
-		end,
-	})
-
-	MM2Tab:CreateToggle({
-		Name = "Aimbot (Gun -> Knife)",
-		CurrentValue = false,
-		Flag = "MM2Aimbot",
-		Callback = function(v)
-			aimbotOn = v
-		end,
-	})
-
-	MM2Tab:CreateToggle({
-		Name = "Show Killer Distance",
-		CurrentValue = false,
-		Flag = "ShowKillerDistance",
-		Callback = function(v)
-			showDistance = v
-			distanceGui.Enabled = v or showTimer or highlightGuns
-		end,
-	})
-
-	MM2Tab:CreateToggle({
-		Name = "Show Round Timer",
-		CurrentValue = false,
-		Flag = "ShowRoundTimer",
-		Callback = function(v)
-			showTimer = v
-			distanceGui.Enabled = showDistance or v or highlightGuns
-		end,
-	})
-
-	MM2Tab:CreateToggle({
-		Name = "Highlight Gun Drops",
-		CurrentValue = false,
-		Flag = "HighlightGunDrops",
-		Callback = function(v)
-			highlightGuns = v
-			distanceGui.Enabled = showDistance or showTimer or v
-			if not v then
-				for _, hl in pairs(gunHighlightTable) do
-					if hl and hl.Parent then hl:Destroy() end
-				end
-				gunHighlightTable = {}
-			end
-		end
-	})
-
-	MM2Tab:CreateToggle({
-		Name = "Auto Pickup GunDrops",
-		CurrentValue = false,
-		Flag = "AutoPickupGunDrops",
-		Callback = function(v)
-			autoPickupGuns = v
-		end
-	})
-
-	local function getWeaponStatus(plr)
-		local weapons = {}
-		if plr.Character then
-			for _, v in ipairs(plr.Character:GetChildren()) do
-				if v:IsA("Tool") and (v.Name:lower():find("knife") or v.Name:lower():find("gun")) then
-					table.insert(weapons, v.Name:lower())
-				end
-			end
-		end
-		if plr:FindFirstChild("Backpack") then
-			for _, v in ipairs(plr.Backpack:GetChildren()) do
-				if v:IsA("Tool") and (v.Name:lower():find("knife") or v.Name:lower():find("gun")) then
-					table.insert(weapons, v.Name:lower())
-				end
-			end
-		end
-		if #weapons == 0 then return "Unarmed"
-		elseif weapons[1]:find("knife") then return "Knife"
-		else return "Gun"
-		end
-	end
-
-	workspace.ChildAdded:Connect(function(child)
-		if not highlightGuns then return end
-		if child:IsA("Model") and child:FindFirstChild("Spawns") then
-			child.ChildAdded:Connect(function(c)
-				if c:IsA("BasePart") and c.Name == "GunDrop" then
-					addGunDropHL(c)
-				end
-			end)
-			for _, c in ipairs(child:GetDescendants()) do
-				if c:IsA("BasePart") and c.Name == "GunDrop" then
-					addGunDropHL(c)
-				end
-			end
-		end
-	end)
-
-	workspace.DescendantAdded:Connect(function(desc)
-		if not highlightGuns then return end
-		if desc:IsA("BasePart") and desc.Name == "GunDrop" then
-			addGunDropHL(desc)
-		end
-	end)
-
-	rs.Heartbeat:Connect(function()
-		local char = p.Character
-		if not char then return end
-		local hrp = char:FindFirstChild("HumanoidRootPart")
-		if not hrp then return end
-
-		for _, plr in ipairs(game.Players:GetPlayers()) do
-			if hlWeaponOn and plr ~= p then
-				local c = plr.Character
-				if c and c:FindFirstChild("HumanoidRootPart") then
-					local status = getWeaponStatus(plr)
-					local hl = c:FindFirstChild("RazarWeaponHL")
-					local color = (status=="Knife" and Color3.fromRGB(255,0,0)
-						or status=="Gun" and Color3.fromRGB(0,0,255)
-						or Color3.fromRGB(98,255,0))
-					if not hl then
-						hl = Instance.new("Highlight")
-						hl.Name = "RazarWeaponHL"
-						hl.FillTransparency = 0.5
-						hl.FillColor = color
-						hl.OutlineColor = color
-						hl.Parent = c
-					else
-						hl.FillColor = color
-						hl.OutlineColor = color
-					end
-				end
-			end
-		end
-
-		if aimbotOn then
-			local gun = char:FindFirstChildOfClass("Tool")
-			if hrp and gun and gun.Name:lower():find("gun") then
-				local target
-				local shortestDist = math.huge
-				for _, plr in ipairs(game.Players:GetPlayers()) do
-					if plr ~= p then
-						local c = plr.Character
-						if c and c:FindFirstChild("HumanoidRootPart") then
-							local status = getWeaponStatus(c)
-							if status == "Knife" then
-								local dist = (c.HumanoidRootPart.Position - hrp.Position).Magnitude
-								if dist < shortestDist then
-									shortestDist = dist
-									target = c.HumanoidRootPart
-								end
-							end
-						end
-					end
-				end
-				if target then
-					workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, target.Position)
-				end
-			end
-		end
-
-		if showDistance then
-			local nearestKiller, shortestDist = nil, math.huge
-			for _, plr in ipairs(game.Players:GetPlayers()) do
-				if plr ~= p then
-					local c = plr.Character
-					if c and c:FindFirstChild("HumanoidRootPart") then
-						local status = getWeaponStatus(c)
-						if status == "Knife" then
-							local dist = (c.HumanoidRootPart.Position - hrp.Position).Magnitude
-							if dist < shortestDist then
-								shortestDist = dist
-								nearestKiller = c
-							end
-						end
-					end
-				end
-			end
-			if nearestKiller then
-				distanceLabel.Text = string.format("Killer: %.1f studs away", shortestDist)
-			else
-				distanceLabel.Text = "No Knife Found"
-			end
-		end
-
-		if showTimer then
-			local roundPart = workspace:FindFirstChild("RoundTimerPart")
-			if roundPart and roundPart:FindFirstChild("SurfaceGui") then
-				local label = roundPart.SurfaceGui:FindFirstChild("Timer")
-				if label and label:IsA("TextLabel") then
-					timerLabel.Text = label.Text
-				else
-					timerLabel.Text = "No Timer"
-				end
-			else
-				timerLabel.Text = "No Timer"
-			end
-		end
-
-		if autoPickupGuns then
-			for part, hl in pairs(gunHighlightTable) do
-				if part and part.Parent and char:FindFirstChild("HumanoidRootPart") then
-					local originalPos = hrp.Position
-					hrp.CFrame = CFrame.new(part.Position + Vector3.new(0,3,0))
-					task.wait(0.05)
-					hrp.CFrame = CFrame.new(originalPos)
-				end
-			end
-		end
-	end)
 end
 
 if game.PlaceId == 6961824067 then
