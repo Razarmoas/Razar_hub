@@ -3,8 +3,6 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local player = game.Players.LocalPlayer
 
-local GrabEvents = game.ReplicatedStorage:WaitForChild("GrabEvents")
-local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
 local ts = game:GetService("TeleportService")
 
 local Window = Rayfield:CreateWindow({
@@ -707,6 +705,9 @@ if game.PlaceId == 142823291 then
 end
 
 if game.PlaceId == 6961824067 then
+	local GrabEvents = game.ReplicatedStorage:WaitForChild("GrabEvents")
+	local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
+	
 	local FTAPTab = Window:CreateTab("Main", nil)
 	local Paragraph = FTAPTab:CreateParagraph({Title = "IMPORTANT!", Content = "Please know that you use this on your own risk! and i wouldnt recommand harming anyone with this"})
 	FTAPTab:CreateSection("FTAP Combat")
@@ -2153,7 +2154,7 @@ if game.PlaceId == 6961824067 then
 	rs.RenderStepped:Connect(function()
 		local c = "Players in server: "..#game.Players:GetPlayers()
 			.."\nPlace ID: "..game.PlaceId
-			.."\nPlace Name: "..game.Name
+			.."\nPlace Name: Fling Things And People"
 		par:Set({Title = "Game Information", Content = c})
 	end)
 
@@ -2182,6 +2183,195 @@ if game.PlaceId == 6961824067 then
 		Name = "Calculator",
 		Callback = function()
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/Razarmoas/Calculator/refs/heads/main/source"))()
+		end,
+	})
+	
+	local eartBending = Window:CreateTab("Cube", nil)
+	eartBending:CreateSection("CLIENT SIDED ONLY!")
+	
+	--------------------------------
+	
+	local cube, ir, or1, or2, sphere = {}, {}, {}, {}, {}
+	local spin, mode, trail = false, nil, false
+	local tparts, tdata, ttime, tint, tspc, lastp = {}, {}, 0, 0.1, 5, nil
+
+	local ti = TweenInfo.new(0.1, Enum.EasingStyle.Linear)
+	local rot, ang, irs, ors, ors2, ira, ora, ora2 = Vector3.new(math.random(), math.random(), math.random()), Vector3.new(), Vector3.new(), Vector3.new(), Vector3.new(), Vector3.new(), Vector3.new(), Vector3.new()
+	local srot, sang = Vector3.new(math.random(), math.random(), math.random()), Vector3.new()
+
+	local function mp()
+		local o = Instance.new("Part")
+		o.Size = Vector3.new(2,2,2)
+		o.Anchored = true
+		o.CanCollide = false
+		o.Color = Color3.fromRGB(255,23,27)
+		o.Material = Enum.Material.SmoothPlastic
+		o.Position = p.Character.HumanoidRootPart.Position
+		o.Parent = workspace
+		return o
+	end
+
+	local function rc()
+		local all = {}
+		for _, tbl in ipairs({cube, ir, or1, or2, sphere}) do
+			for _, x in ipairs(tbl) do
+				table.insert(all, x.part)
+			end
+		end
+		local c = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+		for _, pr in ipairs(all) do
+			if c then
+				ts:Create(pr, TweenInfo.new(0.5), {CFrame = CFrame.new(c.Position), Size = Vector3.new(0.1,0.1,0.1)}):Play()
+			end
+		end
+		task.delay(0.5, function()
+			for _, pr in ipairs(all) do if pr and pr.Parent then pr:Destroy() end end
+		end)
+		cube, ir, or1, or2, sphere, spin, mode = {}, {}, {}, {}, {}, false, nil
+	end
+
+	local function rr() return Vector3.new(math.random()*2-1, math.random()*2-1, math.random()*2-1) end
+	local function ap(r) for _, x in ipairs(r) do x.rs = rr(); x.ra = Vector3.new() end end
+
+	local function makeCube()
+		if mode == "cube" then rc() return end
+		rc()
+		mode = "cube"
+		local s, ps, sp = 3, 2, 0.5
+		local tot = s*ps + (s-1)*sp
+		local h = tot/2
+		for x=0,s-1 do
+			for y=0,s-1 do
+				for z=0,s-1 do
+					local pa = mp()
+					local off = Vector3.new(x*(ps+sp)-h+ps/2, y*(ps+sp)-h+ps/2, z*(ps+sp)-h+ps/2)
+					table.insert(cube, {part=pa, offset=off})
+				end
+			end
+		end
+		spin = true
+	end
+
+	local function makeRing()
+		if mode == "ring" then rc() return end
+		rc()
+		mode = "ring"
+		local inf = {{r={}, c=10, rad=5},{r={}, c=15, rad=8},{r={}, c=20, rad=11}}
+		for _, i in ipairs(inf) do
+			for k=1,i.c do
+				local pa = mp()
+				local a = (k/i.c)*math.pi*2
+				table.insert(i.r, {part=pa, angle=a, radius=i.rad})
+			end
+			ap(i.r)
+		end
+		ir, or1, or2 = inf[1].r, inf[2].r, inf[3].r
+		irs, ors, ors2 = rr(), rr(), rr()
+		spin = true
+	end
+
+	local function makeSphere()
+		if mode == "sphere" then rc() return end
+		rc()
+		mode = "sphere"
+		local cnt = 100
+		for i=1,cnt do
+			local pa = mp()
+			local theta = math.acos(2*math.random()-1)
+			local phi = 2*math.pi*math.random()
+			local r = 8
+			local x = r*math.sin(theta)*math.cos(phi)
+			local y = r*math.cos(theta)
+			local z = r*math.sin(theta)*math.sin(phi)
+			table.insert(sphere, {part=pa, offset=Vector3.new(x,y,z), rs=rr(), ra=Vector3.new()})
+		end
+		srot, sang = rr(), Vector3.new()
+		spin = true
+	end
+
+	local function toggleTrail() trail = not trail end
+
+	rs.Heartbeat:Connect(function(d)
+		local c = p.Character
+		if spin and c and c:FindFirstChild("HumanoidRootPart") then
+			local r = c.HumanoidRootPart
+			local ctr = r.Position + Vector3.new(0,10,0)
+			if mode=="cube" then
+				ang = ang + rot*d
+				local rotcf = CFrame.Angles(ang.X, ang.Y, ang.Z)
+				for _, x in ipairs(cube) do
+					local cf = CFrame.new(ctr) * rotcf * CFrame.new(x.offset)
+					ts:Create(x.part, ti, {CFrame=cf}):Play()
+				end
+			elseif mode=="ring" then
+				ira, ora, ora2 = ira+irs*d, ora+ors*d, ora2+ors2*d
+				for _, rg in ipairs({ir,or1,or2}) do
+					for _, x in ipairs(rg) do
+						x.angle = x.angle + d
+						x.ra = x.ra + x.rs*d
+						local pr = CFrame.Angles(x.ra.X, x.ra.Y, x.ra.Z)
+						local rr2 = (rg==ir and CFrame.Angles(ira.X,ira.Y,ira.Z) or rg==or1 and CFrame.Angles(ora.X,ora.Y,ora.Z) or CFrame.Angles(ora2.X,ora2.Y,ora2.Z))
+						local cf = CFrame.new(ctr-Vector3.new(0,10,0))*rr2*CFrame.new(math.cos(x.angle)*x.radius,0,math.sin(x.angle)*x.radius)*pr
+						ts:Create(x.part, ti, {CFrame=cf}):Play()
+					end
+				end
+			elseif mode=="sphere" then
+				sang = sang + srot*d
+				local srotcf = CFrame.Angles(sang.X, sang.Y, sang.Z)
+				for _, x in ipairs(sphere) do
+					x.ra = x.ra + x.rs*d
+					local pr = CFrame.Angles(x.ra.X, x.ra.Y, x.ra.Z)
+					local cf = CFrame.new(ctr-Vector3.new(0,10,0))*srotcf*CFrame.new(x.offset)*pr
+					ts:Create(x.part, ti, {CFrame=cf}):Play()
+				end
+			end
+		end
+	end)
+
+	local earthBendingFunc =  {
+		Cube = makeCube,
+		Ring = makeRing,
+		Sphere = makeSphere,
+		Trail = toggleTrail,
+		Clear = rc
+	}
+	
+	--------------------------------
+	
+	eartBending:CreateButton({
+		Name = "CUBE",
+		Callback = function()
+			earthBendingFunc.Cube()
+		end,
+	})
+	
+	eartBending:CreateButton({
+		Name = "RING",
+		Callback = function()
+			earthBendingFunc.Ring()
+		end,
+	})
+	
+	eartBending:CreateButton({
+		Name = "SPHARE",
+		Callback = function()
+			earthBendingFunc.Sphere()
+		end,
+	})
+	
+	eartBending:CreateButton({
+		Name = "TRAIL",
+		Callback = function()
+			earthBendingFunc.Trail()
+		end,
+	})
+	
+	eartBending:CreateDivider()
+	
+	eartBending:CreateButton({
+		Name = "CLEAR",
+		Callback = function()
+			earthBendingFunc.Clear()
 		end,
 	})
 end
