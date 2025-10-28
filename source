@@ -38,7 +38,7 @@ local uis = game:GetService("UserInputService")
 -- HOME TAB (VISUAL EFFECTS)
 -- ==============================
 
-if game.PlaceId ~= 6961824067 then
+--if game.PlaceId ~= 6961824067 then
 	local HomeTab = Window:CreateTab("HOME", nil)
 	local HomeSection = HomeTab:CreateSection("Home")
 
@@ -426,7 +426,7 @@ if game.PlaceId ~= 6961824067 then
 	})
 
 
-end
+--end
 
 -- ==============================
 -- MM2 TAB
