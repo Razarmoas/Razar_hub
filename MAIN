@@ -1,39 +1,3 @@
--- HUB SETUP
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local player = game.Players.LocalPlayer
-
-local ts = game:GetService("TeleportService")
-
-local Window = Rayfield:CreateWindow({
-	Name = "Razar Hub",
-	Icon = 0,
-	LoadingTitle = "Razarhub",
-	LoadingSubtitle = "by Razarmous",
-	ShowText = "EB",
-	Theme = "Default",
-	ToggleUIKeybind = "M",
-	DisableRayfieldPrompts = false,
-	DisableBuildWarnings = false,
-	ConfigurationSaving = { Enabled = true, FolderName = nil, FileName = "Razar_hub" },
-	Discord = { Enabled = true, Invite = "https://discord.gg/jy8MaBt6", RememberJoins = true },
-	KeySystem = true,
-	KeySettings = {
-		Title = "Razar Hub",
-		Subtitle = "Enter Key",
-		Note = "Join the discord server for key",
-		FileName = "Razar_Hub",
-		SaveKey = true,
-		GrabKeyFromSite = false,
-		Key = { "X21KUK12X" }
-	}
-})
-
-local p = game.Players.LocalPlayer
-local rs = game:GetService("RunService")
-local ts = game:GetService("TweenService")
-local uis = game:GetService("UserInputService")
-
 if game.PlaceId == 142823291 then ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/// MURDER MISTYURY 2 ▽ \\\--
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/Razarmoas/Razar_hub/refs/heads/main/MM2"))
 elseif game.PlaceId == 6961824067 then -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/// FLING THINGS AND PEOPLE ▽ \\\--
